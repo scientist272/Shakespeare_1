@@ -16,7 +16,7 @@ public class MapFunc {
     private static final BlockingDeque<Map<String,List<Integer>>> blockingDeque =Transfer.buffer;
     //管道
 
-
+    //将stopwords的文件读入到内存中
     static {
         stopWords = new HashSet<>();
         String path1 = "./stopwords1.txt";
@@ -25,6 +25,7 @@ public class MapFunc {
         getStopWords(path2);
     }
 
+    //将stopwords的文件读入到内存中
     private static void getStopWords(String path) {
         try(InputStreamReader read = new InputStreamReader(new FileInputStream(path));
             BufferedReader reader = new BufferedReader(read)){
@@ -42,9 +43,9 @@ public class MapFunc {
 
     public void map(String string){
         String[] temp = generateUnfilteredWords(string);
-        //TODO 多线程处理
+        //多线程处理,通过线程池管理线程
         ExecutorService executorService =  Executors.newCachedThreadPool();
-        final int tasks = 8;//处理map的任务数
+        final int tasks = 8;//处理map的任务数,将数据分成8块，每个线程处理一块
         final CountDownLatch countDownLatch = new CountDownLatch(tasks);//所有线程处理完毕后关闭线程池
         for (int i = 0; i < tasks ; i++) {
             int finalI = i;
@@ -84,8 +85,8 @@ public class MapFunc {
         executorService.shutdown();
 
     }
-
-    public static String[] generateUnfilteredWords(String string){
+    //生成用于处理的字符串数组
+    private static String[] generateUnfilteredWords(String string){
         char[] chars = string.toCharArray();
         for (int i = 0; i <chars.length ; i++) {
             char c = chars[i];
@@ -96,6 +97,7 @@ public class MapFunc {
         return String.valueOf(chars).split(" ");
     }
 
+    //用于文本过滤
     private static boolean isCharacter(char c,char[] chars,int index){
             return Character.isUpperCase(c) || Character.isLowerCase(c) ||
                     (index > 0 && index < chars.length - 1

@@ -11,7 +11,9 @@ public class ReduceFunc {
 
 
     public Map<String,Integer> reduce(){
+        //线程池
         ExecutorService executorService = Executors.newCachedThreadPool();
+        //线程数
         int tasks = 8;
         CountDownLatch countDownLatch = new CountDownLatch(tasks);
         for (int i = 0; i <tasks ; i++) {
